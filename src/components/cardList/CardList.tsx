@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./cardList.module.css";
 import Card from "../card/Card";
+import Pagination from "../pagination/Pagination";
 
 const CardList = async () => {
   return (
@@ -48,6 +49,7 @@ const CardList = async () => {
           }}
         />
       </div>
+      <Pagination page={2} hasPrev={true} hasNext={true} />
     </div>
   );
 };
