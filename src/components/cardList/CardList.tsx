@@ -2,54 +2,43 @@ import React from "react";
 import styles from "./cardList.module.css";
 import Card from "../card/Card";
 import Pagination from "../pagination/Pagination";
+import axios from "axios";
 
-const CardList = async () => {
+type Page = number;
+type Cat = string;
+
+const getData = async (page: Page, cat?: Cat) => {
+  const res = await axios.get(`http://localhost:3000/api/posts?page=${page}`);
+
+  if (res.statusText !== "OK") {
+    throw new Error("Failed");
+  }
+
+  return res.data;
+};
+
+interface Props {
+  page: Page;
+  cat?: Cat;
+}
+
+const CardList = async ({ page, cat }: Props) => {
+  const { posts, count } = await getData(page, cat);
+
+  const POST_PER_PAGE = 2;
+
+  const hasPrev = POST_PER_PAGE * (page - 1) > 0;
+  const hasNext = POST_PER_PAGE * (page - 1) + POST_PER_PAGE < count;
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Recent Posts</h1>
       <div className={styles.posts}>
-        <Card
-          item={{
-            img: "/p1.jpeg",
-            createdAt: "03.01.2024",
-            catSlug: "CULTURE",
-            desc: "lorem",
-          }}
-        />
-        <Card
-          item={{
-            img: "/p1.jpeg",
-            createdAt: "03.01.2024",
-            catSlug: "CULTURE",
-            desc: "lorem",
-          }}
-        />
-        <Card
-          item={{
-            img: "/p1.jpeg",
-            createdAt: "03.01.2024",
-            catSlug: "CULTURE",
-            desc: "lorem",
-          }}
-        />
-        <Card
-          item={{
-            img: "/p1.jpeg",
-            createdAt: "03.01.2024",
-            catSlug: "CULTURE",
-            desc: "lorem",
-          }}
-        />
-        <Card
-          item={{
-            img: "/p1.jpeg",
-            createdAt: "03.01.2024",
-            catSlug: "CULTURE",
-            desc: "lorem",
-          }}
-        />
+        {posts?.map((item: any) => (
+          <Card item={item} key={item._id} />
+        ))}
       </div>
-      <Pagination page={2} hasPrev={true} hasNext={true} />
+      <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
     </div>
   );
 };

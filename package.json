@@ -14,16 +14,19 @@
     "@types/node": "20.10.6",
     "@types/react": "18.2.46",
     "@types/react-dom": "18.2.18",
+    "axios": "^1.6.4",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "firebase": "^10.3.0",
     "next": "13.4.19",
     "next-auth": "^4.23.1",
-    "prisma": "^5.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-quill": "^2.0.0",
     "swr": "^2.2.2",
     "typescript": "5.3.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.1"
   }
 }
