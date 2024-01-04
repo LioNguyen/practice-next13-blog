@@ -46,5 +46,6 @@ After updating schema.prisma, re-run `npx prisma generate`
 Next step:
 
 - Create [firebase](https://console.firebase.google.com)
+- [firebase document](https://firebase.google.com/docs/storage/web/upload-files)
 - Add project name
 - Build storage: test mode
