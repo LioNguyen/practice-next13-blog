@@ -5,12 +5,16 @@ export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
 
   const page = searchParams.get("page") || 1;
+  const cat = searchParams.get("cat");
 
   const POST_PER_PAGE = 2;
 
   const query = {
     take: POST_PER_PAGE,
     skip: POST_PER_PAGE * (+page - 1),
+    where: {
+      ...(cat && { catSlug: cat }),
+    },
   };
 
   try {
@@ -20,8 +24,8 @@ export const GET = async (req: Request) => {
     ]);
 
     return NextResponse.json({ posts, count });
-  } catch (error) {
-    console.log("🚀 @log ~ file: route.js:6 ~ GET ~ error:", error);
+  } catch (err) {
+    console.log(err);
 
     return NextResponse.json({ message: "Something went wrong!", status: 500 });
   }

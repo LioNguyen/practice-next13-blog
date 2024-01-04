@@ -8,7 +8,9 @@ type Page = number;
 type Cat = string;
 
 const getData = async (page: Page, cat?: Cat) => {
-  const res = await axios.get(`http://localhost:3000/api/posts?page=${page}`);
+  const res = await axios.get(
+    `http://localhost:3000/api/posts?page=${page}&cat=${cat || ""}`
+  );
 
   if (res.statusText !== "OK") {
     throw new Error("Failed");
