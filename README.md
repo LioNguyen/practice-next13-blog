@@ -33,6 +33,9 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
+Use this to create google signin
+[Console.cloud.google](https://console.cloud.google.com/)
+
 ```
 npx prisma init --datasource-provider mongodb
 npx prisma generate

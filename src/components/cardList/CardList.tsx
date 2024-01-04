@@ -1,15 +1,15 @@
 import React from "react";
-
 import Card from "../card/Card";
 import Pagination from "../pagination/Pagination";
 import axios from "axios";
+import styles from "@/components/cardList/cardlist.module.css";
 
 type Page = number;
 type Cat = string;
 
 const getData = async (page: Page, cat?: Cat) => {
   const res = await axios.get(
-    `http://localhost:3000/api/posts?page=${page}&cat=${cat || ""}`
+    `${process.env.NEXT_AUTH_URL}/api/posts?page=${page}&cat=${cat || ""}`
   );
 
   if (res.statusText !== "OK") {
@@ -33,9 +33,9 @@ const CardList = async ({ page, cat }: Props) => {
   const hasNext = POST_PER_PAGE * (page - 1) + POST_PER_PAGE < count;
 
   return (
-    <div>
-      <h1>Recent Posts</h1>
-      <div>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Recent Posts</h1>
+      <div className={styles.posts}>
         {posts?.map((item: any) => (
           <Card item={item} key={item._id} />
         ))}
