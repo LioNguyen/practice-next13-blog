@@ -12,18 +12,56 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import { app } from "@/utils/firebase";
 import ReactQuill from "react-quill";
+import axios from "axios";
 
 const WritePage = () => {
-  let status = "";
+  const { status } = useSession();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<any>(null);
   const [media, setMedia] = useState("");
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
   const [catSlug, setCatSlug] = useState("");
+
+  useEffect(() => {
+    if (!file) return;
+    const storage = getStorage(app);
+    const upload = () => {
+      const name = new Date().getTime() + file.name;
+      const storageRef = ref(storage, name);
+
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {},
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setMedia(downloadURL);
+          });
+        }
+      );
+    };
+
+    file && upload();
+  }, [file]);
 
   if (status === "loading") {
     return <div className={styles.loading}>Loading...</div>;
@@ -42,19 +80,19 @@ const WritePage = () => {
       .replace(/^-+|-+$/g, "");
 
   const handleSubmit = async () => {
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      body: JSON.stringify({
+    const res = await axios.post(
+      "/api/posts",
+      JSON.stringify({
         title,
         desc: value,
         img: media,
         slug: slugify(title),
         catSlug: catSlug || "style", //If not selected, choose the general category
-      }),
-    });
+      })
+    );
 
     if (res.status === 200) {
-      const data = await res.json();
+      const data = await res.data;
       router.push(`/posts/${data.slug}`);
     }
   };
@@ -84,7 +122,12 @@ const WritePage = () => {
         </button>
         {open && (
           <div className={styles.add}>
-            <input type="file" id="image" style={{ display: "none" }} />
+            <input
+              type="file"
+              id="image"
+              onChange={(e) => !!e.target.files && setFile(e.target.files[0])}
+              style={{ display: "none" }}
+            />
             <button className={styles.addButton}>
               <label htmlFor="image">
                 <Image src="/image.png" alt="" width={16} height={16} />

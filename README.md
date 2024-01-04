@@ -42,3 +42,9 @@ npx prisma studio
 [NextJS Prisma Client](https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-prisma-client-dev-practices)
 
 After updating schema.prisma, re-run `npx prisma generate`
+
+Next step:
+
+- Create [firebase](https://console.firebase.google.com)
+- Add project name
+- Build storage: test mode
