@@ -5,7 +5,7 @@ import Comments from "@/components/comments/Comments";
 import axios from "axios";
 
 const getData = async (slug: string) => {
-  const res = await axios.get(`${process.env.NEXT_AUTH_URL}/api/posts/${slug}`);
+  const res = await axios.get(`${process.env.NEXTAUTH_URL}/api/posts/${slug}`);
 
   if (res.statusText !== "OK") {
     throw new Error("Failed");

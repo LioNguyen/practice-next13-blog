@@ -26,7 +26,7 @@ const Comments = ({ postSlug }: Props) => {
   const { status } = useSession();
 
   const { data, mutate, isLoading } = useSWR(
-    `${process.env.NEXT_AUTH_URL}/api/comments?postSlug=${postSlug}`,
+    `${process.env.NEXTAUTH_URL}/api/comments?postSlug=${postSlug}`,
     fetcher
   );
 

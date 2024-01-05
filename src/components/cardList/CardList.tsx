@@ -9,7 +9,7 @@ type Cat = string;
 
 const getData = async (page: Page, cat?: Cat) => {
   const res = await axios.get(
-    `${process.env.NEXT_AUTH_URL}/api/posts?page=${page}&cat=${cat || ""}`
+    `${process.env.NEXTAUTH_URL}/api/posts?page=${page}&cat=${cat || ""}`
   );
 
   if (res.statusText !== "OK") {

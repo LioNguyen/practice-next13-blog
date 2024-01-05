@@ -5,7 +5,7 @@ import Image from "next/image";
 import axios from "axios";
 
 const getData = async () => {
-  const res = await axios.get(`${process.env.NEXT_AUTH_URL}/api/categories`);
+  const res = await axios.get(`${process.env.NEXTAUTH_URL}/api/categories`);
 
   if (res.statusText !== "OK") {
     throw new Error("Failed");
