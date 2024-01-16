@@ -1,30 +1,46 @@
-import React from "react";
-import styles from "./categoryList.module.css";
-import Link from "next/link";
-import Image from "next/image";
+"use client";
+
+import * as S from "./CategoryList.style";
+
+import { Text } from "@chakra-ui/react";
 import axios from "axios";
+import Image from "next/image";
+import Link from "next/link";
 
-const getData = async () => {
-  const res = await axios.get(`${process.env.NEXTAUTH_URL}/api/categories`);
+import { useEffect, useState } from "react";
 
-  if (res.statusText !== "OK") {
-    throw new Error("Failed");
-  }
+export const revalidate = 0;
 
-  return res.data;
-};
+const CategoryList = () => {
+  const [categories, setCategories] = useState([]);
 
-const CategoryList = async () => {
-  const { categories } = await getData();
+  const getData = async () => {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories`
+    );
+
+    if (res.statusText !== "OK") {
+      throw new Error("Failed");
+    }
+
+    setCategories(res.data.categories);
+    // return res.data;
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Popular Categories</h1>
-      <div className={styles.categories}>
+    <S.Wrapper margin={0} padding={0} width={"100%"} maxWidth={"100%"}>
+      <Text fontSize="5xl" fontWeight={500} margin="50px 0">
+        Popular Categories
+      </Text>
+      <div className="categories">
         {categories?.map((item: any) => (
           <Link
-            href="/blog?cat=style"
-            className={`${styles.category} ${styles[item.slug]}`}
+            href={`/blog?cat=${item.slug}`}
+            className={`category ${item.slug}`}
             key={item._id}
           >
             {item.img && (
@@ -33,14 +49,14 @@ const CategoryList = async () => {
                 alt=""
                 width={32}
                 height={32}
-                className={styles.image}
+                className="image"
               />
             )}
             {item.title}
           </Link>
         ))}
       </div>
-    </div>
+    </S.Wrapper>
   );
 };
 

@@ -1,32 +1,58 @@
 "use client";
 
-import Image from "next/image";
-import styles from "./writePage.module.css";
-import { useEffect, useState } from "react";
-import "react-quill/dist/quill.bubble.css";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import * as S from "./WritePage.styles";
+
+import { Badge, Stack, useToast } from "@chakra-ui/react";
+import axios from "axios";
 import {
+  getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
-  getDownloadURL,
 } from "firebase/storage";
-import { app } from "@/utils/firebase";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import "react-quill/dist/quill.bubble.css";
+
+import { Loading } from "@/components/molecules/loading/Loading";
+import { app } from "@/utils/firebase";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const WritePage = () => {
   const { status } = useSession();
   const router = useRouter();
+  const toast = useToast();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<any>(null);
   const [media, setMedia] = useState("");
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
   const [catSlug, setCatSlug] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  const getCategoryList = async () => {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories`
+    );
+
+    if (res.statusText !== "OK") {
+      throw new Error("Failed");
+    }
+
+    setCategories(res.data.categories);
+    setCatSlug(res.data.categories[0].title);
+    // return res.data;
+  };
+
+  useEffect(() => {
+    getCategoryList();
+  }, []);
 
   useEffect(() => {
     const storage = getStorage(app);
@@ -64,7 +90,7 @@ const WritePage = () => {
   }, [file]);
 
   if (status === "loading") {
-    return <div className={styles.loading}>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   if (status === "unauthenticated") {
@@ -80,79 +106,107 @@ const WritePage = () => {
       .replace(/^-+|-+$/g, "");
 
   const handleSubmit = async () => {
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      body: JSON.stringify({
-        title,
-        desc: value,
-        img: media,
-        slug: slugify(title),
-        catSlug: catSlug || "style", //If not selected, choose the general category
-      }),
-    });
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          desc: value,
+          img: media,
+          slug: slugify(title),
+          catSlug: catSlug || "style", //If not selected, choose the general category
+        }),
+      });
 
-    if (res.status === 200) {
-      const data = await res.json();
-      router.push(`/posts/${data.slug}`);
+      if (res.status === 200) {
+        router.refresh();
+        toast({
+          description: "Created Successfully!",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+        const data = await res.json();
+        router.push(`/posts/${data.slug}`);
+      }
+    } catch (error) {
+      console.log("🚀 @log ~ handleSubmit ~ error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className={styles.container}>
-      <input
+    <S.Wrapper
+      margin={0}
+      padding={0}
+      maxWidth={"100%"}
+      position={"relative"}
+      display={"flex"}
+      flexDirection={"column"}
+    >
+      {isLoading ? <Loading /> : <></>}
+      <S.TitleInput
+        padding="50px"
+        marginBottom="50px"
         type="text"
         placeholder="Title"
-        className={styles.input}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <select
-        className={styles.select}
-        onChange={(e) => setCatSlug(e.target.value)}
-      >
-        <option value="style">style</option>
-        <option value="fashion">fashion</option>
-        <option value="food">food</option>
-        <option value="culture">culture</option>
-        <option value="travel">travel</option>
-        <option value="coding">coding</option>
-      </select>
-      <div className={styles.editor}>
-        <button className={styles.button} onClick={() => setOpen(!open)}>
+      <Stack direction="row">
+        {categories?.map((item: any) => (
+          <Badge
+            key={item.id}
+            borderRadius={"8px"}
+            marginBottom={"30px"}
+            padding={"8px 12px"}
+            cursor={"pointer"}
+            onClick={() => setCatSlug(item.title)}
+            opacity={catSlug === item.title ? 1 : 0.5}
+            className={`category ${item.slug}`}
+          >
+            {item.title}
+          </Badge>
+        ))}
+      </Stack>
+      <div className="editor">
+        <button className="button" onClick={() => setOpen(!open)}>
           <Image src="/plus.png" alt="" width={16} height={16} />
         </button>
         {open && (
-          <div className={styles.add}>
+          <div className="add">
             <input
               type="file"
               id="image"
               onChange={(e) => !!e.target.files && setFile(e.target.files[0])}
               style={{ display: "none" }}
             />
-            <button className={styles.addButton}>
+            <button className="addButton">
               <label htmlFor="image">
                 <Image src="/image.png" alt="" width={16} height={16} />
               </label>
             </button>
-            <button className={styles.addButton}>
+            <button className="addButton">
               <Image src="/external.png" alt="" width={16} height={16} />
             </button>
-            <button className={styles.addButton}>
+            <button className="addButton">
               <Image src="/video.png" alt="" width={16} height={16} />
             </button>
           </div>
         )}
         <ReactQuill
-          className={styles.textArea}
+          className="textArea"
           theme="bubble"
           value={value}
           onChange={setValue}
           placeholder="Tell your story..."
         />
       </div>
-      <button className={styles.publish} onClick={handleSubmit}>
+      <button className="publish" onClick={handleSubmit}>
         Publish
       </button>
-    </div>
+    </S.Wrapper>
   );
 };
 

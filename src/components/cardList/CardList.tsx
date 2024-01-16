@@ -1,8 +1,9 @@
-import React from "react";
+import { Text } from "@chakra-ui/react";
+import axios from "axios";
+
+import styles from "@/components/cardList/cardlist.module.css";
 import Card from "../card/Card";
 import Pagination from "../pagination/Pagination";
-import axios from "axios";
-import styles from "@/components/cardList/cardlist.module.css";
 
 type Page = number;
 type Cat = string;
@@ -34,7 +35,9 @@ const CardList = async ({ page, cat }: Props) => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Recent Posts</h1>
+      <Text fontSize="5xl" fontWeight={500} margin="50px 0">
+        Recent Posts
+      </Text>
       <div className={styles.posts}>
         {posts?.map((item: any) => (
           <Card item={item} key={item._id} />
