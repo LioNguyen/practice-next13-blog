@@ -27,3 +27,5 @@ Next step:
 - [firebase document](https://firebase.google.com/docs/storage/web/upload-files)
 - Add project name
 - Build storage: test mode
+
+[Change Authorized redirect URIs](https://console.cloud.google.com/apis/credentials/oauthclient)
